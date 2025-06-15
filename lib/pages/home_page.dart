@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Welcome, $displayName"),
         actions: [
-          IconButton(onPressed: ProfilePage(), icon: Icon(Icons.notifications_active))
+          IconButton(onPressed: (){}, icon: Icon(Icons.notifications_active))
         ],
       ),
       body: Center(
