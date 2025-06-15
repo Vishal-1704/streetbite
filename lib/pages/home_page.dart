@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:streetbite/auth/auth_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:streetbite/services/location_service.dart';
+import 'package:streetbite/services/UserInfo.dart';
 
-import 'bottomNavScreen.dart';
+import '../services/bottomNavScreen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,66 +15,90 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String displayName = '';
   String currentCity = 'Fetching...';
-
-  final authService = AuthService();
   List<String> availableCities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad'];
 
   @override
   void initState() {
     super.initState();
-    fetchDisplayName();
+    displayName = UserInfo.getDisplayName()!;
     fetchLocation();
   }
 
-  Future<void> fetchDisplayName() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
-      final metadata = user.userMetadata;
-      setState(() {
-        displayName = metadata?['display_name'] ?? '';
-      });
-    }
-  }
-
   Future<void> fetchLocation() async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) return;
-      }
-
-      Position position = await Geolocator.getCurrentPosition();
-      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placemarks[0];
-
-      setState(() {
-        currentCity = place.locality ?? place.administrativeArea ?? 'Unknown';
-      });
-    } catch (e) {
-      print('Location fetch failed: $e');
-    }
+    String city = await LocationService.getCurrentCity();
+    setState(() {
+      currentCity = city;
+    });
   }
 
   void showCitySelector() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ListView(
-        children: availableCities.map((city) {
-          return ListTile(
-            title: Text(city),
-            leading: Icon(Icons.location_city),
-            onTap: () {
-              setState(() {
-                currentCity = city;
-              });
-              Navigator.pop(context);
-            },
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          bool isLoading = false;
+
+          Future<void> detectLocation() async {
+            setModalState(() => isLoading = true);
+            try {
+              String detectedCity = await LocationService.getCurrentCity();
+
+              if (mounted) {
+                setState(() {
+                  currentCity = detectedCity;
+                });
+                Navigator.pop(context); // Close modal
+              }
+            } catch (e) {
+              print("Error detecting location: $e");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Failed to detect location")),
+              );
+            } finally {
+              setModalState(() => isLoading = false);
+            }
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.my_location),
+                  title: isLoading
+                      ? Row(
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 12),
+                      Text("Detecting..."),
+                    ],
+                  )
+                      : Text("Detect My Location"),
+                  onTap: isLoading ? null : detectLocation,
+                ),
+                Divider(),
+                ...availableCities.map((city) {
+                  return ListTile(
+                    title: Text(city),
+                    leading: Icon(Icons.location_city),
+                    onTap: () {
+                      setState(() {
+                        currentCity = city;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                }).toList(),
+              ],
+            ),
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -107,14 +129,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-
       body: Center(
         child: Text(
           "Hello, $displayName 👋",
           style: TextStyle(fontSize: 24),
         ),
       ),
-
       bottomNavigationBar: navBar(),
     );
   }
