@@ -7,10 +7,12 @@ authenticted => homepage
 
 
 import 'package:flutter/material.dart';
-import 'package:streetbite/pages/home_page.dart';
+import 'package:streetbite/pages/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:streetbite/pages/login_page.dart';
+import 'package:streetbite/pages/login_screen.dart';
+
+import '../pages/homepage.dart';
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -37,7 +39,7 @@ class AuthGate extends StatelessWidget {
             return HomePage();
           }
           else {
-            return LoginPage();
+            return LoginScreen();
           }
         },
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:streetbite/auth/auth_service.dart';
+import 'package:streetbite/services/user_info.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -12,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final authService = AuthService();
 
+ final _displayName = UserInfo.getDisplayName();
 
 
 
@@ -25,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar:AppBar(
-        title: Text("Welcome"),
+        title: Text("Welcome, $_displayName"),
         actions: [
           IconButton(onPressed: logout, icon: Icon(Icons.logout))
         ],

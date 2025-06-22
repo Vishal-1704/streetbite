@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:streetbite/auth/auth_service.dart';
-import 'package:streetbite/pages/register_page.dart';
-import 'package:streetbite/pages/home_page.dart';
+import 'package:streetbite/pages/register_screen.dart';
+import 'package:streetbite/pages/home_screen.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   //get auth service
   final authService = AuthService();
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:streetbite/auth/auth_service.dart';
-import 'package:streetbite/pages/login_page.dart';
+import 'package:streetbite/pages/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -109,7 +109,7 @@ SizedBox(height: 12,),
 
             SizedBox(height: 12),
             GestureDetector(
-              onTap: () => Navigator.push(context,MaterialPageRoute(builder: (context) =>  LoginPage(),),),
+              onTap: () => Navigator.push(context,MaterialPageRoute(builder: (context) =>  LoginScreen(),),),
               child:Center(
                 child: Text("Already have an account? Login"),
               ),
