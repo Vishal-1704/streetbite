@@ -1,0 +1,26 @@
+name: Flutter Build Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'  # use your current Flutter version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run build (debug)
+        run: flutter build apk --debug
